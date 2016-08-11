@@ -7,13 +7,14 @@ public class MarkovChain {
 
     Scanner scan = new Scanner(System.in);
 
-    char[] input = readChars(scan);
+   // char[] input = readChars(scan);
+    String[] input = readWords(scan);
     Hashtable hash = makeHash(input);
 
-    int space = (int) hash.get(' ');
+    int period = (int) hash.get(".");
 
     Double[][] index = trainChain(input, hash);
-    List<Integer> newSeries = genNewSeries(ThreadLocalRandom.current().nextInt(0, hash.size()), space, index);
+    List<Integer> newSeries = genNewSeries(ThreadLocalRandom.current().nextInt(0, hash.size()), period, index);
     String word = seriesToString(newSeries, hash);
 
     System.out.println(word);
@@ -28,11 +29,61 @@ public class MarkovChain {
 
   }
 
-  static Hashtable makeHash (char[] input) {
+  static String[] readWords (Scanner scan) {
+
+    List<String> words = new ArrayList<String>();
+    char[] wordArray;
+    String word = "";
+    String punctuation = "";
+    String[] input;
+
+    int i = 0;
+
+    while (scan.hasNext()) {
+
+      wordArray = scan.next().toCharArray();
+
+      word = "";
+      punctuation = "";
+
+      for (char item : wordArray) {
+
+        if (Character.isLetter(item)) {
+
+          word = word + item;
+
+        }
+
+        else if (item == '.' || item == '!' || item == ';') {
+
+          punctuation = Character.toString(item);
+
+        }
+
+      }
+
+      words.add(word.toLowerCase());
+      words.add(punctuation);
+
+    }
+    input = new String[words.size()];
+
+    for (String item : words) {
+
+      input[i] = item;
+      i++;
+
+    }
+
+    return input;
+
+  }
+
+  static Hashtable makeHash (String[] input) {
 
     Hashtable hash = new Hashtable();
 
-    for (char item : input) {
+    for (String item : input) {
 
       if (hash.containsKey(item) == false) {
 
@@ -46,7 +97,7 @@ public class MarkovChain {
 
   }
 
-  static Double[][] trainChain (char[] input, Hashtable hash) {
+  static Double[][] trainChain (String[] input, Hashtable hash) {
 
     Double[][] index = new Double[hash.size()][hash.size()];
 
@@ -77,9 +128,9 @@ public class MarkovChain {
 
     }
 
-    for (char item : input) {
+    for (String item : input) {
 
-      next = (int) hash.get( item);
+      next = (int) hash.get(item);
 
       index[last][last] = index[last][last] + 1;
       index[last][next] = index[last][next] + 1;
@@ -184,7 +235,7 @@ public class MarkovChain {
 
     for (Integer num : series) {
 
-      str = str + rHash.get(num);
+      str = str + " " + rHash.get(num);
 
     }
 
